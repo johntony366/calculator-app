@@ -15,6 +15,7 @@ function divide(a, b) {
 }
 
 function operate(a, operator, b) {
+    ++operationCount;
     switch (operator) {
         case '+':
             return add(a, b);
@@ -38,77 +39,102 @@ const clear = document.querySelector('.clear');
 const backspace = document.querySelector('.backspace');
 const equals = document.querySelector('.equals');
 
-let calc_operator;
-let decimalEnabled = true;
+let calc_value = 0;
+let operationCount = 0;
+
+function changeZeroToFirstDigit(digit) {
+    if (display.textContent == '0') {
+        display.textContent = digit.textContent;
+    }
+    else {
+        display.textContent += digit.textContent;
+    }
+}
 
 digits.forEach(digit => {
     digit.addEventListener('click', () => {
-        if (display.textContent == '0') {
-            display.textContent = digit.textContent;
-        }
-        else {
-            display.textContent += digit.textContent;    
-        }
-        calc_operator = null;
+        changeZeroToFirstDigit(digit);
     })
 });
+
+function checkIfLastCharacterIsOperator(operator) {
+    if (display.textContent.slice(-1).match(/[^0-9\.]/)) {
+        return true;
+    }
+    return false
+} 
 
 operators.forEach(operator => {
     operator.addEventListener('click', () => {
-        if (calc_operator) {
+        //Check whether last input was also operator
+        let operatorChanged = checkIfLastCharacterIsOperator(operator);
+
+        if (operatorChanged) {
             display.textContent = display.textContent.slice(0, -1);
         }
-        calc_operator = operator.textContent;
-        display.textContent += calc_operator;
-        decimalEnabled = true;
+
+        //Don't trigger if first operation or operator was changed
+        if (operationCount > 0 && !operatorChanged) { 
+            let expression = display.textContent;
+            expression = expression.split(expression.match(/[^0-9\.]/)[0])
+            calc_value = operate(Number(expression[0]), calc_operator, Number(expression[1]));
+            display.textContent = calc_value;
+        }
+
+        display.textContent += operator.textContent;
     })
 });
 
+function currentNumberIsInteger() {
+    if (operationCount == 0) {
+        return Number.isInteger((Number(display.textContent)));
+    }
+    else {
+        let expression = display.textContent;
+        expression = expression.split(expression.match(/[^0-9\.]/)[0]);
+        return Number.isInteger((Number(expression[1])));
+    }
+}
+
 decimal.addEventListener('click', () => {
-    if (decimalEnabled) {
+    if (currentNumberIsInteger()) {
         display.textContent += '.';
-        decimalEnabled = false;
     }
 })
 
+
 clear.addEventListener('click', () => {
+    //Resetting 
     display.textContent = '0';
-    decimalEnabled = true;
+    operationCount = 0;
+    calc_value = 0;
 });
 
+
+
 backspace.addEventListener('click', () => {
-    const length = display.textContent.length;
-    if (display.textContent[length - 1] == '.')
-        decimalEnabled = true;
-    if (length == 1) {
-        display.textContent = '0';
+    if (operationCount == 0) {
+        if (calc_value == 0) {
+            return;
+        }
+        else {
+            calc_value = Number(display.textContent = display.textContent.split(0, -1));
+            display.textContent = display.textContent.slice(0, -1);
+        }
     }
-    else
+    else {
         display.textContent = display.textContent.slice(0, -1);
+    }
 });
 
 equals.addEventListener('click', evaluate);
 function evaluate() {
     let expression = display.textContent;
-    let calc_value = 0;
     let operator;
-    let nextOperator;
-    while (true) {
-        operator = expression.match(/[^0-9\.]/); //Finding next operator
-        const a = Number(expression.slice(0, operator.index));
-        expression = expression.slice(operator.index + 1);
-        nextOperator = expression.match(/[^0-9\.]/);
-        if (!nextOperator) {
-            const b = Number(expression);
-            display.textContent = operate(a, operator[0], b);
-            break;
-        }
-        const b = Number(expression.slice(0, nextOperator.index));
-        expression = expression.slice(nextOperator.index);
-        calc_value = operate(a, operator[0], b);
-        expression = calc_value + expression;
-    }
-    
+    expression = expression.split(operator = expression.match(/[^0-9\.]/)[0]);
+    calc_value = operate(expression[0], operator, expression[1]);
+    display.textContent = calc_value;
+    operationCount = 0;
 }
 
 

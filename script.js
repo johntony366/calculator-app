@@ -1,17 +1,17 @@
 function add(a, b) {
-    return a + b;
+    return parseFloat((a + b).toFixed(4));
 }
 
 function subtract(a, b) {
-    return a - b;
+    return parseFloat((a - b).toFixed(4));
 }
 
 function multiply(a, b) {
-    return a * b;
+    return parseFloat((a * b).toFixed(4));
 }
 
 function divide(a, b) {
-    return a / b;
+    return parseFloat((a / b).toFixed(4));
 }
 
 function operate(a, operator, b) {
@@ -76,28 +76,32 @@ operators.forEach(operator => {
         //Don't trigger if first operation or operator was changed
         if (operationCount > 0 && !operatorChanged) { 
             let expression = display.textContent;
-            expression = expression.split(expression.match(/[^0-9\.]/)[0])
+            let calc_operator;
+            expression = expression.split(calc_operator = expression.match(/[^0-9\.]/)[0]);
             calc_value = operate(Number(expression[0]), calc_operator, Number(expression[1]));
             display.textContent = calc_value;
+        }
+        else {
+            ++operationCount;
         }
 
         display.textContent += operator.textContent;
     })
 });
 
-function currentNumberIsInteger() {
+function currentNumberContainsDecimal() {
     if (operationCount == 0) {
-        return Number.isInteger((Number(display.textContent)));
+        return display.textContent.match(/\./);
     }
     else {
         let expression = display.textContent;
         expression = expression.split(expression.match(/[^0-9\.]/)[0]);
-        return Number.isInteger((Number(expression[1])));
+        return expression[1].match(/\./);
     }
 }
 
 decimal.addEventListener('click', () => {
-    if (currentNumberIsInteger()) {
+    if (!currentNumberContainsDecimal()) {
         display.textContent += '.';
     }
 })
@@ -132,7 +136,7 @@ function evaluate() {
     let expression = display.textContent;
     let operator;
     expression = expression.split(operator = expression.match(/[^0-9\.]/)[0]);
-    calc_value = operate(expression[0], operator, expression[1]);
+    calc_value = operate(Number(expression[0]), operator, Number(expression[1]));
     display.textContent = calc_value;
     operationCount = 0;
 }

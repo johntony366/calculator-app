@@ -42,18 +42,14 @@ const equals = document.querySelector('.equals');
 let calc_value = 0;
 let operationCount = 0;
 
-function changeZeroToFirstDigit(digit) {
-    if (display.textContent == '0') {
-        display.textContent = digit.textContent;
-    }
-    else {
-        display.textContent += digit.textContent;
-    }
-}
-
 digits.forEach(digit => {
     digit.addEventListener('click', () => {
-        changeZeroToFirstDigit(digit);
+        if (display.textContent == '0') {
+            display.textContent = digit.textContent;
+        }
+        else {
+            display.textContent += digit.textContent;
+        }
     })
 });
 
@@ -141,6 +137,38 @@ function evaluate() {
     operationCount = 0;
 }
 
+//Enabling keypad input
+window.addEventListener('keyup', (event) => {
+    const key = event.key;
+    if (parseInt(key)) {
+        digits[Number(key)].click();
+    }
+    else if (key == '+') {
+        document.querySelector('.add').click();
+    }
+    else if (key == '-') {
+        document.querySelector('.subtract').click();
+    }
+    else if (key == '*') {
+        document.querySelector('.multiply').click();
+    }
+    else if (key == '/') {
+        document.querySelector('.divide').click();
+    }
+    else if (key == 'Backspace') {
+        document.querySelector('.backspace').click();
+    }
+    else if (key == 'Enter') {
+        document.querySelector('.equals').click();
+    }
+    else if (key == 'c') {
+        document.querySelector('.clear').click();
+    }
+    else if (key == '.') {
+        document.querySelector('.decimal').click();
+    }
+    
+})
 
 
 

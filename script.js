@@ -129,6 +129,9 @@ backspace.addEventListener('click', () => {
 
 equals.addEventListener('click', evaluate);
 function evaluate() {
+    if (operationCount == 0) {
+        return;
+    }
     let expression = display.textContent;
     let operator;
     expression = expression.split(operator = expression.match(/[^0-9\.]/)[0]);

@@ -138,7 +138,7 @@ function evaluate() {
 }
 
 //Enabling keypad input
-window.addEventListener('keyup', (event) => {
+window.addEventListener('keydown', (event) => {
     const key = event.key;
     if (parseInt(key)) {
         digits[Number(key)].click();
